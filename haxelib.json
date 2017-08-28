@@ -1,0 +1,15 @@
+{
+  "name": "pushx_awsiot",
+  "license": "MIT",
+  "tags": [
+    "push",
+    "aws"
+  ],
+  "classPath": "src",
+  "contributors": [
+    "kevinresol"
+  ],
+  "releasenote": "initial release",
+  "version": "0.0.0",
+  "dependencies": {}
+}
