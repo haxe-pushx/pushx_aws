@@ -6,10 +6,12 @@ class NodeAwsIotPusher<Data:{}> implements pushx.Pusher<Data> {
 	
 	var endpoint:String;
 	var idToTopic:String->String;
+	var jsonify:Payload<Data>->String;
 	
-	public function new(endpoint, ?idToTopic) {
+	public function new(endpoint, ?options:{?idToTopic:String->String, ?jsonify:Payload<Data>->String}) {
 		this.endpoint = endpoint;
-		this.idToTopic = idToTopic != null ? idToTopic : function(id) return 'push/$id';
+		this.idToTopic = options != null && options.idToTopic != null ? options.idToTopic : function(id) return 'push/$id';
+		this.jsonify = options != null && options.jsonify != null ? options.jsonify : haxe.Json.stringify.bind(_, null, null);
 	}
 	
 	public function single(id:String, payload:pushx.Payload<Data>):Promise<pushx.Result> {
@@ -29,7 +31,7 @@ class NodeAwsIotPusher<Data:{}> implements pushx.Pusher<Data> {
 		var iotData = new IotData({endpoint: endpoint});
 		return Future.async(function(cb) iotData.publish({
 				topic: topic,
-				payload: haxe.Json.stringify(payload),
+				payload: jsonify(payload),
 				qos: 1,
 			}, function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.withData(500, err.message, err)))));
 			
