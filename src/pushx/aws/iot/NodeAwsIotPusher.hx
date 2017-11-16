@@ -1,17 +1,17 @@
-package pushx.awsiot.impl;
+package pushx.aws.iot;
 
 using tink.CoreApi;
 
 class NodeAwsIotPusher<Data:{}> implements pushx.Pusher<Data> {
 	
-	var endpoint:String;
+	var iotData:IotData;
 	var idToTopic:String->String;
 	var jsonify:Payload<Data>->String;
 	
-	public function new(endpoint, ?options:{?idToTopic:String->String, ?jsonify:Payload<Data>->String}) {
-		this.endpoint = endpoint;
-		this.idToTopic = options != null && options.idToTopic != null ? options.idToTopic : function(id) return 'push/$id';
-		this.jsonify = options != null && options.jsonify != null ? options.jsonify : haxe.Json.stringify.bind(_, null, null);
+	public function new(config, ?options:{?idToTopic:String->String, ?jsonify:Payload<Data>->String}) {
+		iotData = new IotData(config);
+		idToTopic = options != null && options.idToTopic != null ? options.idToTopic : function(id) return 'push/$id';
+		jsonify = options != null && options.jsonify != null ? options.jsonify : haxe.Json.stringify.bind(_, null, null);
 	}
 	
 	public function single(id:String, payload:pushx.Payload<Data>):Promise<pushx.Result> {
@@ -28,12 +28,11 @@ class NodeAwsIotPusher<Data:{}> implements pushx.Pusher<Data> {
 	}
 	
 	public function topic(topic:String, payload:pushx.Payload<Data>):Promise<pushx.Result> {
-		var iotData = new IotData({endpoint: endpoint});
 		return Future.async(function(cb) iotData.publish({
 				topic: topic,
 				payload: jsonify(payload),
 				qos: 1,
-			}, function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.withData(500, err.message, err)))));
+			}, function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.ofJsError(err)))));
 			
 	}
 }

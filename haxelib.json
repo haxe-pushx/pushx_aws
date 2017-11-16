@@ -1,9 +1,11 @@
 {
-  "name": "pushx_awsiot",
+  "name": "pushx_aws",
   "license": "MIT",
   "tags": [
     "push",
-    "aws"
+    "aws",
+    "iot",
+    "sns"
   ],
   "classPath": "src",
   "contributors": [
