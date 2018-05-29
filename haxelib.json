@@ -14,6 +14,8 @@
   "releasenote": "initial release",
   "version": "0.0.0",
   "dependencies": {
-    "pushx_core": ""
+    "pushx_core": "",
+    "futurize": "",
+    "extern-js-aws-sdk": ""
   }
 }
