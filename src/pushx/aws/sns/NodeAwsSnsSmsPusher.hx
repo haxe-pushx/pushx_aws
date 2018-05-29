@@ -5,14 +5,13 @@ using tink.CoreApi;
 class NodeAwsSnsSmsPusher<Data:{}> implements pushx.Pusher<Data> {
 	
 	var sns:SNS;
-	var toMessage:Payload<Data>->String;
 	
 	public function new(?config:{}, ?options:{?toMessage:Payload<Data>->String}) {
 		sns = new SNS(config);
-		toMessage = options != null && options.toMessage != null ? options.toMessage : _toMessage;
+		if(options != null && options.toMessage != null) toMessage = options.toMessage;
 	}
 	
-	function _toMessage(payload:Payload<Data>)
+	dynamic function toMessage(payload:Payload<Data>)
 		return switch payload.notification {
 			case null | {body: null}: '<empty>';
 			case n: n.body;
