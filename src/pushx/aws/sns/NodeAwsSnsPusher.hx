@@ -68,7 +68,7 @@ class NodeAwsSnsPusher<Data:{}> implements pushx.Pusher<Data> {
 			Attributes: {
 				Enabled: 'true',
 				Token: token,
-				CustomUserData: '',
+				// CustomUserData: '',
 			}
 		}, $cb1).next(function(o) return o.EndpointArn);
 	}
