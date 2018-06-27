@@ -61,7 +61,7 @@ class NodeAwsSnsPusher<Data:{}> implements pushx.Pusher<Data> {
 			
 	}
 	
-	function createEndpoint(token:String) {
+	function createEndpoint(token:String):Promise<String> {
 		return @:futurize sns.createPlatformEndpoint({
 			PlatformApplicationArn: application,
 			Token: token,
@@ -70,6 +70,20 @@ class NodeAwsSnsPusher<Data:{}> implements pushx.Pusher<Data> {
 				Token: token,
 				// CustomUserData: '',
 			}
-		}, $cb1).next(function(o) return o.EndpointArn);
+		}, $cb1).map(function(o) return switch o {
+			case Success(data):
+				Success(data.EndpointArn);
+			case Failure(e):
+				try {
+					var re = ~/Endpoint (.*) already exists/g;
+					if(e.data.code == 'InvalidParameter' && e.data.message.indexOf('but different attributes') != -1 && re.match(e.data.message)) {
+						Success(re.matched(1));
+					} else {
+						Failure(e);
+					}
+				} catch(ex:Dynamic) {
+					Failure(e);
+				}
+		});
 	}
 }
