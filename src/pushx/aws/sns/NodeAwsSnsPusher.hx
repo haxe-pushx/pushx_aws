@@ -1,6 +1,7 @@
 package pushx.aws.sns;
 
 import js.aws.sns.SNS;
+import pushx.Result;
 
 using tink.CoreApi;
 
@@ -38,7 +39,14 @@ class NodeAwsSnsPusher<Data:{}> implements pushx.Pusher<Data> {
 							Message: toMessage(payload),
 							MessageStructure: 'json',
 						},
-						function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.ofJsError(err)))
+						function(err, _) {
+							if(err == null)
+								cb(Success({errors: []}));
+							else if(err.code == 'EndpointDisabled')
+								cb(Success({errors: [{id: id, type: InvalidTarget}]}));
+							else
+								cb(Failure(Error.ofJsError(err)));
+						}
 					)
 				);
 			});
