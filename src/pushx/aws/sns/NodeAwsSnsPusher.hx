@@ -62,11 +62,13 @@ class NodeAwsSnsPusher<Data:{}> implements pushx.Pusher<Data> {
 	}
 	
 	public function topic(topic:String, payload:pushx.Payload<Data>):Promise<pushx.Result> {
-		return Future.async(function(cb) sns.publish({
-				TopicArn: topic,
+		return Future.async(function(cb) sns.createTopic({Name: topic}, function(err, data) {
+			if(err != null) cb(Failure(Error.ofJsError(err)));
+			else sns.publish({
+				TopicArn: data.TopicArn,
 				Message: toMessage(payload),
-			}, function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.ofJsError(err)))));
-			
+			}, function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.ofJsError(err))));
+		}));
 	}
 	
 	function createEndpoint(token:String):Promise<String> {

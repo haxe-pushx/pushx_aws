@@ -34,10 +34,13 @@ class NodeAwsSnsSmsPusher<Data:{}> implements pushx.Pusher<Data> {
 	}
 	
 	public function topic(topic:String, payload:pushx.Payload<Data>):Promise<pushx.Result> {
-		return Future.async(function(cb) sns.publish({
-				TopicArn: topic,
+		return Future.async(function(cb) sns.createTopic({Name: topic}, function(err, data) {
+			if(err != null) cb(Failure(Error.ofJsError(err)));
+			else sns.publish({
+				TopicArn: data.TopicArn,
 				Message: toMessage(payload),
-			}, function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.ofJsError(err)))));
+			}, function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.ofJsError(err)))));s
+		});
 			
 	}
 }
@@ -46,4 +49,5 @@ class NodeAwsSnsSmsPusher<Data:{}> implements pushx.Pusher<Data> {
 private extern class SNS {
 	function new(?config:{}):Void;
 	function publish(params:{}, cb:js.Error->Dynamic->Void):Void;
+	function createTopic(params:{Name:String}, cb:js.Error->{TopicArn:String}->Void):Void;
 }
