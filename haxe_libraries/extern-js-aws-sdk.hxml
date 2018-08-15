@@ -1,0 +1,6 @@
+-D extern-js-aws-sdk=1.0.0
+# @install: lix --silent download "gh://github.com/ExternKit/extern-js-aws-sdk#e3e514520ab49462076b91f881b789b250779e20" into extern-js-aws-sdk/1.0.0/github/e3e514520ab49462076b91f881b789b250779e20
+-lib hxnodejs
+-lib extern-js
+-cp ${HAXE_LIBCACHE}/extern-js-aws-sdk/1.0.0/github/e3e514520ab49462076b91f881b789b250779e20/./src
+-D aws_sdk_default_ver=2.3

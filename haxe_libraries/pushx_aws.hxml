@@ -1,0 +1,4 @@
+-cp src
+-lib pushx_core
+-lib futurize
+-lib extern-js-aws-sdk

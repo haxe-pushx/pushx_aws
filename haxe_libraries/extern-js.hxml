@@ -1,0 +1,5 @@
+-D extern-js=1.0.0
+# @install: lix --silent download "gh://github.com/ExternKit/extern-js#f4ed7c7697aabfd5e5c2e29cf34e2515b842bcde" into extern-js/1.0.0/github/f4ed7c7697aabfd5e5c2e29cf34e2515b842bcde
+-lib hxnodejs
+-cp ${HAXE_LIBCACHE}/extern-js/1.0.0/github/f4ed7c7697aabfd5e5c2e29cf34e2515b842bcde/./src
+-D extkit_mode=require

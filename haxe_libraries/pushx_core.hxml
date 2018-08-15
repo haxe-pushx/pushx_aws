@@ -1,0 +1,5 @@
+-D pushx_core=0.0.0
+# @install: lix --silent download "gh://github.com/haxe-pushx/pushx_core#c357d4b8c30f922cc94046cd61fc705b16027da4" into pushx_core/0.0.0/github/c357d4b8c30f922cc94046cd61fc705b16027da4
+-lib tink_core
+# -cp ${HAXE_LIBCACHE}/pushx_core/0.0.0/github/c357d4b8c30f922cc94046cd61fc705b16027da4/src
+-cp ../pushx_core/src

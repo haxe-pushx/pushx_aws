@@ -4,17 +4,18 @@ import js.aws.iotdata.IotData;
 
 using tink.CoreApi;
 
-private typedef Options<Data:{}> = {
+private typedef Options<T> = {
 	?iot:{},
 	?idToTopic:String->String, 
-	?jsonify:Payload<Data>->String,
+	?jsonify:T->String,
 }
 
-class NodeAwsIotPusher<Data:{}> implements pushx.Pusher<Data> {
+@:build(futurize.Futurize.build())
+class NodeAwsIotPusher<T> extends pushx.BasePusher<T> {
 	
 	var iotData:IotData;
 	
-	public function new(options:Options<Data>) {
+	public function new(options:Options<T>) {
 		iotData = new IotData(options.iot);
 		if(options.idToTopic != null) idToTopic = options.idToTopic;
 		if(options.jsonify != null) jsonify = options.jsonify;
@@ -24,29 +25,23 @@ class NodeAwsIotPusher<Data:{}> implements pushx.Pusher<Data> {
 		return 'push/$id';
 	}
 	
-	dynamic function jsonify(payload:Payload<Data>) {
-		return haxe.Json.stringify(payload);
+	dynamic function jsonify(data:T) {
+		return haxe.Json.stringify(data);
 	}
 	
-	public function single(id:String, payload:pushx.Payload<Data>):Promise<pushx.Result> {
-		return topic(idToTopic(id), payload);
+	override function single(id:String, data:T):Surprise<Noise, TypedError<ErrorType>> {
+		return topic(idToTopic(id), data);
 	}
 	
-	public function multiple(ids:Array<String>, payload:pushx.Payload<Data>):Promise<pushx.Result> {
-		return Promise.inParallel([for(id in ids) single(id, payload)])
-			.next(function(results) {
-				var errors = [];
-				for(result in results) errors = errors.concat(result.errors);
-				return {errors: errors};
+	override function topic(topic:String, data:T):Surprise<Noise, TypedError<ErrorType>> {
+		return @:futurize iotData.publish({
+			topic: topic,
+			payload: jsonify(data),
+			qos: 1,
+		}, $cb1)
+			.map(function(o) return switch o {
+				case Success(_): Success(Noise);
+				case Failure(e): Failure(wrapError(Others(e)));
 			});
-	}
-	
-	public function topic(topic:String, payload:pushx.Payload<Data>):Promise<pushx.Result> {
-		return Future.async(function(cb) iotData.publish({
-				topic: topic,
-				payload: jsonify(payload),
-				qos: 1,
-			}, function(err, _) cb(err == null ? Success({errors: []}) : Failure(Error.ofJsError(err)))));
-			
 	}
 }
